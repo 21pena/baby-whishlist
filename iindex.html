@@ -99,7 +99,7 @@
   <div class="back-link"><a href="https://ваш_сайт.tilda.ws">← Вернуться на приглашение</a></div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbw6B-Jej_dFvHYOkSD_-l2XI5pqzbAJJ9bu24FKmYtUrPA5ibZnWzMcUMZN5oPHXou7mQ/exec'; // ← Замените на свой
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzf5cl_fKX4JUSxINp9xrfLaJmmLjbo8231MiEYXktySe_023_xoo9XjTWodlrrXHiC6A/exec'; // ← Замените на свой
 
     async function loadGifts() {
       try {
@@ -154,28 +154,33 @@
     }
 
     async function bookGift(giftId) {
-      const guestName = prompt('Как вас представить нашему крохе?');
-      if (!guestName) return;
-      try {
-        const response = await fetch(API_URL, {
-  method: 'POST',
-  body: JSON.stringify({ id: giftId, guest: guestName }),
-  headers: { 'Content-Type': 'text/plain' }   // ← просто меняем тип
-});
-        const result = await response.json();
-        if (result.result === 'success') {
-          alert('Спасибо! Мы записали, что ' + guestName + ' дарит этот подарок.');
-          loadGifts();
-        } else {
-          alert('Упс! Этот подарок уже выбрали. Пожалуйста, выберите другой.');
-          loadGifts();
-        }
-      } catch (err) {
-        alert('Ошибка соединения. Попробуйте позже.');
-      }
-    }
+  const guestName = prompt('Как вас представить нашему крохе?');
+  if (!guestName) return;
 
-    loadGifts();
-  </script>
-</body>
-</html>
+  try {
+    // Создаём строку параметров в формате id=...&guest=...
+    const formData = new URLSearchParams();
+    formData.append('id', giftId);
+    formData.append('guest', guestName);
+
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      body: formData,  // ← тело как обычная форма
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+
+    const result = await response.json();
+    if (result.result === 'success') {
+      alert('Спасибо! Мы записали, что ' + guestName + ' дарит этот подарок.');
+      loadGifts();
+    } else {
+      alert('Упс! Этот подарок уже выбрали. Пожалуйста, выберите другой.');
+      loadGifts();
+    }
+  } catch (err) {
+    alert('Ошибка соединения. Попробуйте позже.');
+    console.error(err);
+  }
+}
